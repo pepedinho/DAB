@@ -9,14 +9,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"discord_drive/common"
+	"discord_drive/list"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-)
-
-var (
-	Token   = os.Getenv("DISCORD_TOKEN")
-	GuildID = "1340725915130400859"
 )
 
 func UploadFile(c *gin.Context) {
@@ -39,7 +37,7 @@ func UploadFile(c *gin.Context) {
 		return
 	}
 
-	channelID, err := createChannelAndSegments(tempFile.Name(), file.Filename)
+	channelID, err := createChannelAndSegments(tempFile.Name(), file.Filename, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création du canal ou de l'envoi des segments : " + err.Error()})
 		return
@@ -51,8 +49,8 @@ func UploadFile(c *gin.Context) {
 
 }
 
-func createChannelAndSegments(filePath, filename string) (string, error) {
-	dg, err := discordgo.New("Bot " + Token)
+func createChannelAndSegments(filePath, filename string, c *gin.Context) (string, error) {
+	dg, err := discordgo.New("Bot " + common.Token)
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la création du client Discord: %v", err)
 	}
@@ -63,7 +61,19 @@ func createChannelAndSegments(filePath, filename string) (string, error) {
 	}
 	defer dg.Close()
 
-	channel, err := dg.GuildChannelCreate(GuildID, uuid.New().String()+"__"+filename, discordgo.ChannelTypeGuildText)
+	channelList, err := list.ListChannelFileWithDg(c, dg)
+
+	if err != nil {
+		return "", fmt.Errorf("erreur l'ors de la récuperations des channels: %v", err)
+	}
+
+	channelName := uuid.New().String() + "__" + filename
+
+	if list.ContainChannel(channelList, filename) {
+		return "", fmt.Errorf("erreur el fichier existe déja: %v", err)
+	}
+
+	channel, err := dg.GuildChannelCreate(common.GuildID, channelName, discordgo.ChannelTypeGuildText)
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la création du canal: %v", err)
 	}
