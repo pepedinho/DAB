@@ -87,7 +87,7 @@ func ListChannelFileWithDg(c *gin.Context, dg *discordgo.Session) ([]map[string]
 
 func ContainChannel(fileChannels []map[string]interface{}, target string) bool {
 
-	sanitizeTarget := strings.ReplaceAll(target, ".", "")
+	sanitizeTarget := strings.ReplaceAll(strings.ToLower(target), ".", "")
 
 	for _, elem := range fileChannels {
 		// fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
