@@ -98,3 +98,17 @@ func ContainChannel(fileChannels []map[string]interface{}, target string) bool {
 	}
 	return false
 }
+
+func GetChannel(fileChannels []map[string]interface{}, target string) map[string]interface{} {
+
+	sanitizeTarget := strings.ReplaceAll(target, ".", "")
+
+	for _, elem := range fileChannels {
+		// fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
+		// fmt.Printf("target => %s\n", target)
+		if channel, ok := elem["file_name"].(string); ok && channel == sanitizeTarget {
+			return elem
+		}
+	}
+	return nil
+}
