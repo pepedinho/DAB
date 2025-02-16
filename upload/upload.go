@@ -11,6 +11,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var (
@@ -38,9 +39,9 @@ func UploadFile(c *gin.Context) {
 		return
 	}
 
-	channelID, err := createChannelAndSegments(tempFile.Name())
+	channelID, err := createChannelAndSegments(tempFile.Name(), file.Filename)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création du canal ou de l'envoi des segments"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création du canal ou de l'envoi des segments : " + err.Error()})
 		return
 	}
 
@@ -50,7 +51,7 @@ func UploadFile(c *gin.Context) {
 
 }
 
-func createChannelAndSegments(filePath string) (string, error) {
+func createChannelAndSegments(filePath, filename string) (string, error) {
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la création du client Discord: %v", err)
@@ -62,7 +63,7 @@ func createChannelAndSegments(filePath string) (string, error) {
 	}
 	defer dg.Close()
 
-	channel, err := dg.GuildChannelCreate(GuildID, filePath, discordgo.ChannelTypeGuildText)
+	channel, err := dg.GuildChannelCreate(GuildID, uuid.New().String()+"__"+filename, discordgo.ChannelTypeGuildText)
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la création du canal: %v", err)
 	}
