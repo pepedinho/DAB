@@ -2,6 +2,7 @@ package main
 
 import (
 	"discord_drive/get"
+	"discord_drive/infos"
 	"discord_drive/list"
 	"discord_drive/upload"
 	"strings"
@@ -64,6 +65,7 @@ func main() {
 	r.POST("/upload", upload.UploadFile)
 	r.GET("/list", list.ListFile)
 	r.GET("/get", get.GetFile)
+	r.GET("/infos", infos.GetInfos)
 
 	r.Run(":8000")
 }
