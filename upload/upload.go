@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"discord_drive/srcs/common"
-	"discord_drive/srcs/list"
+	"discord_drive/common"
+	"discord_drive/list"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"

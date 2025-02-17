@@ -1,7 +1,7 @@
 package list
 
 import (
-	"discord_drive/srcs/common"
+	"discord_drive/common"
 	"fmt"
 	"net/http"
 	"strings"

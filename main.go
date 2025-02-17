@@ -1,9 +1,9 @@
 package main
 
 import (
-	"discord_drive/srcs/list"
-	"discord_drive/srcs/upload"
-	"discord_drive/srcs/get"
+	"discord_drive/list"
+	"discord_drive/upload"
+	"discord_drive/get"
 
 	"github.com/gin-gonic/gin"
 )

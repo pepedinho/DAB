@@ -1,8 +1,8 @@
 package get
 
 import (
-	"discord_drive/srcs/common"
-	"discord_drive/srcs/list"
+	"discord_drive/common"
+	"discord_drive/list"
 	"fmt"
 	"io"
 	"net/http"
