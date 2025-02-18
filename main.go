@@ -5,37 +5,36 @@ import (
 	"discord_drive/infos"
 	"discord_drive/list"
 	"discord_drive/upload"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func corsMiddleware() gin.HandlerFunc {
-	originsString := "https://dab-frontend-b5b1.vercel.app, http://localhost:3000, http://10.255.255.254:3000"
-	var allowedOrigins []string
-	if originsString != "" {
-		allowedOrigins = strings.Split(originsString, ",")
-	}
+	// originsString := "https://dab-frontend-b5b1.vercel.app, http://localhost:3000, http://10.255.255.254:3000"
+	// var allowedOrigins []string
+	// if originsString != "" {
+	// 	allowedOrigins = strings.Split(originsString, ",")
+	// }
 
 	return func(c *gin.Context) {
-		isOriginAllowed := func(origin string, allowedOrigins []string) bool {
-			for _, allowedOrigin := range allowedOrigins {
-				if origin == allowedOrigin {
-					return true
-				}
-			}
-			return false
-		}
+		// isOriginAllowed := func(origin string, allowedOrigins []string) bool {
+		// 	for _, allowedOrigin := range allowedOrigins {
+		// 		if origin == allowedOrigin {
+		// 			return true
+		// 		}
+		// 	}
+		// 	return false
+		// }
 
-		origin := c.Request.Header.Get("Origin")
+		// origin := c.Request.Header.Get("Origin")
+		gin.DefaultWriter.Write([]byte("📌 Writing Header\n"))
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 
-		if isOriginAllowed(origin, allowedOrigins) {
-			gin.DefaultWriter.Write([]byte("📌 Writing Header\n"))
-			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-			c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-		}
+		// if isOriginAllowed(origin, allowedOrigins) {
+		// }
 
 		// Handle preflight OPTIONS requests by aborting with status 204
 		if c.Request.Method == "OPTIONS" {
