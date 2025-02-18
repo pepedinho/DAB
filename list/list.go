@@ -82,12 +82,18 @@ func ListChannelFileWithDg(c *gin.Context, dg *discordgo.Session) ([]map[string]
 	for _, channel := range list {
 		if channel.Type == discordgo.ChannelTypeGuildText {
 			parts := strings.SplitN(channel.Name, "__", 5)
-			if len(parts) == 2 {
+			if len(parts) >= 4 {
+				sizeBytes, err := strconv.Atoi(parts[2])
+				if err != nil {
+					sizeBytes = 0
+				}
+
 				fileChannels = append(fileChannels, map[string]interface{}{
 					"id":        channel.ID,
 					"channel":   channel.Name,
 					"file_name": parts[1],
 					"size":      parts[2],
+					"mb_size":   fmt.Sprintf("%.1f", float64(sizeBytes)/(1024*1024)),
 					"date":      parts[3],
 					"extension": parts[4],
 				})
@@ -102,9 +108,11 @@ func ContainChannel(fileChannels []map[string]interface{}, target string) bool {
 
 	sanitizeTarget := strings.ReplaceAll(strings.ToLower(target), ".", "")
 
+	fmt.Printf("Searching => %s | %s\n", sanitizeTarget, target)
+
 	for _, elem := range fileChannels {
-		// fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
-		// fmt.Printf("target => %s\n", target)
+		fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
+		fmt.Printf("target => %s\n", target)
 		if channel, ok := elem["file_name"].(string); ok && channel == sanitizeTarget {
 			return true
 		}
@@ -114,11 +122,12 @@ func ContainChannel(fileChannels []map[string]interface{}, target string) bool {
 
 func GetChannel(fileChannels []map[string]interface{}, target string) map[string]interface{} {
 
-	sanitizeTarget := strings.ReplaceAll(target, ".", "")
+	sanitizeTarget := strings.ReplaceAll(strings.ToLower(target), ".", "")
+	fmt.Printf("Searching => %s\n", sanitizeTarget)
 
 	for _, elem := range fileChannels {
-		// fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
-		// fmt.Printf("target => %s\n", target)
+		fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
+		fmt.Printf("target => %s\n", target)
 		if channel, ok := elem["file_name"].(string); ok && channel == sanitizeTarget {
 			return elem
 		}

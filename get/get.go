@@ -37,6 +37,8 @@ func GetFile(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("Channel List => %v\n", channelList)
+
 	if !list.ContainChannel(channelList, filename) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Le fichier (" + filename + ") n'existe pas"})
 		return
