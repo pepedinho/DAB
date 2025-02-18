@@ -4,6 +4,7 @@ import (
 	"discord_drive/common"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -44,12 +45,21 @@ func ListChannelFile(c *gin.Context) ([]map[string]interface{}, error) {
 	var fileChannels []map[string]interface{}
 	for _, channel := range list {
 		if channel.Type == discordgo.ChannelTypeGuildText {
-			parts := strings.SplitN(channel.Name, "__", 2)
-			if len(parts) == 2 {
+			parts := strings.SplitN(channel.Name, "__", 5)
+			if len(parts) >= 4 {
+				sizeBytes, err := strconv.Atoi(parts[2])
+				if err != nil {
+					sizeBytes = 0
+				}
+
 				fileChannels = append(fileChannels, map[string]interface{}{
 					"id":        channel.ID,
 					"channel":   channel.Name,
 					"file_name": parts[1],
+					"size":      parts[2],
+					"mb_size":   fmt.Sprintf("%.1f", float64(sizeBytes)/(1024*1024)),
+					"date":      parts[3],
+					"extension": parts[4],
 				})
 			}
 		}
@@ -71,12 +81,15 @@ func ListChannelFileWithDg(c *gin.Context, dg *discordgo.Session) ([]map[string]
 	var fileChannels []map[string]interface{}
 	for _, channel := range list {
 		if channel.Type == discordgo.ChannelTypeGuildText {
-			parts := strings.SplitN(channel.Name, "__", 2)
+			parts := strings.SplitN(channel.Name, "__", 5)
 			if len(parts) == 2 {
 				fileChannels = append(fileChannels, map[string]interface{}{
 					"id":        channel.ID,
 					"channel":   channel.Name,
 					"file_name": parts[1],
+					"size":      parts[2],
+					"date":      parts[3],
+					"extension": parts[4],
 				})
 			}
 		}

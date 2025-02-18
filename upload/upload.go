@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -37,7 +38,7 @@ func UploadFile(c *gin.Context) {
 		return
 	}
 
-	channelID, err := createChannelAndSegments(tempFile.Name(), file.Filename, c)
+	channelID, err := createChannelAndSegments(tempFile.Name(), file.Filename, *file, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création du canal ou de l'envoi des segments : " + err.Error()})
 		return
@@ -49,7 +50,7 @@ func UploadFile(c *gin.Context) {
 
 }
 
-func createChannelAndSegments(filePath, filename string, c *gin.Context) (string, error) {
+func createChannelAndSegments(filePath, filename string, file multipart.FileHeader, c *gin.Context) (string, error) {
 	dg, err := discordgo.New("Bot " + common.Token)
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la création du client Discord: %v", err)
@@ -67,7 +68,9 @@ func createChannelAndSegments(filePath, filename string, c *gin.Context) (string
 		return "", fmt.Errorf("erreur l'ors de la récuperations des channels: %v", err)
 	}
 
-	channelName := uuid.New().String() + "__" + filename
+	date := time.Now().Format("20060102-150405")
+
+	channelName := fmt.Sprintf("%s__%s__%d__%s__%s", uuid.New().String(), filename, file.Size, date, filepath.Ext(filename))
 
 	if list.ContainChannel(channelList, filename) {
 		return "", fmt.Errorf("erreur el fichier existe déja: %v", err)
