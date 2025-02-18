@@ -11,7 +11,7 @@ import (
 )
 
 func corsMiddleware() gin.HandlerFunc {
-	originsString := "http://localhost:3000, http://10.255.255.254:3000, https://dab-frontend-b5b1.vercel.app"
+	originsString := "https://dab-frontend-b5b1.vercel.app, http://localhost:3000, http://10.255.255.254:3000"
 	var allowedOrigins []string
 	if originsString != "" {
 		allowedOrigins = strings.Split(originsString, ",")
