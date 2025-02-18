@@ -122,6 +122,5 @@ func sendFileSegmentToChannel(filePath, channelID string, dg *discordgo.Session)
 		segmentIndex++
 		time.Sleep(500 * time.Millisecond)
 	}
-
 	return nil
 }

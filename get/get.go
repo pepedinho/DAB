@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
@@ -77,6 +76,8 @@ func GetFile(c *gin.Context) {
 	}
 	defer outputFile.Close()
 
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Header("Content-Type", "application/octet-stream")
 	for _, msg := range allMessages {
 		if len(msg.Attachments) == 0 {
 			continue
@@ -89,19 +90,11 @@ func GetFile(c *gin.Context) {
 			return
 		}
 		defer resp.Body.Close()
-
-		_, err = io.Copy(outputFile, resp.Body)
+		
+		_, err = io.Copy(c.Writer, resp.Body)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la reconstruction du fichier"})
 			return
 		}
 	}
-
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	c.File(tempFilePath)
-
-	go func() {
-		time.Sleep(10 * time.Second)
-		os.Remove(tempFilePath)
-	}()
 }
