@@ -6,7 +6,6 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -26,31 +25,23 @@ func UploadFile(c *gin.Context) {
 		return
 	}
 
-	tempFile, err := os.Create(filepath.Join(os.TempDir(), file.Filename))
+	srcFile, err := file.Open()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur l'ors de la création du fichier"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de l'ouverture du fichier : " + err.Error()})
 		return
 	}
-	defer tempFile.Close()
+	defer srcFile.Close()
 
-	if err := c.SaveUploadedFile(file, tempFile.Name()); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur l'ors de l'enregistrement du fichier"})
-		return
-	}
-
-	channelID, err := createChannelAndSegments(tempFile.Name(), file.Filename, *file, c)
+	channelID, err := createChannelAndSegments(srcFile, file.Filename, *file, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création du canal ou de l'envoi des segments : " + err.Error()})
 		return
 	}
 
-	os.Remove(tempFile.Name())
-
 	c.JSON(http.StatusOK, gin.H{"message": "Fichier uploadé et segments envoyés", "channel_id": channelID})
-
 }
 
-func createChannelAndSegments(filePath, filename string, file multipart.FileHeader, c *gin.Context) (string, error) {
+func createChannelAndSegments(reader io.Reader, filename string, file multipart.FileHeader, c *gin.Context) (string, error) {
 	dg, err := discordgo.New("Bot " + common.Token)
 	guildID := c.Param("guildID")
 
@@ -86,29 +77,24 @@ func createChannelAndSegments(filePath, filename string, file multipart.FileHead
 		return "", fmt.Errorf("erreur lors de la création du canal: %v", err)
 	}
 
-	if err := sendFileSegmentToChannel(filePath, channel.ID, dg); err != nil {
+	if err := sendFileSegmentToChannel(reader, channel.ID, dg); err != nil {
 		return "", err
 	}
 
 	return channel.ID, nil
 }
 
-func sendFileSegmentToChannel(filePath, channelID string, dg *discordgo.Session) error {
-	file, err := os.Open(filePath)
-
-	if err != nil {
-		return fmt.Errorf("erreur lors de l'ouverture du fichier: %v", err)
-	}
-	defer file.Close()
-
+func sendFileSegmentToChannel(reader io.Reader, channelID string, dg *discordgo.Session) error {
 	buffer := make([]byte, 10*1024*1024) // 10 Mo
 	segmentIndex := 0
 
 	for {
-		n, err := file.Read(buffer)
+		// lire depuis le stream
+		n, err := reader.Read(buffer)
 		if err == io.EOF {
 			break
 		}
+
 		if err != nil {
 			return fmt.Errorf("erreur lors de la lecture du fichier: %v", err)
 		}
@@ -120,7 +106,7 @@ func sendFileSegmentToChannel(filePath, channelID string, dg *discordgo.Session)
 		}
 
 		segmentIndex++
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 	}
 	return nil
 }
