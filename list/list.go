@@ -108,11 +108,11 @@ func ContainChannel(fileChannels []map[string]interface{}, target string) bool {
 
 	sanitizeTarget := strings.ReplaceAll(strings.ToLower(target), ".", "")
 
-	fmt.Printf("Searching => %s | %s\n", sanitizeTarget, target)
+	// fmt.Printf("Searching => %s | %s\n", sanitizeTarget, target)
 
 	for _, elem := range fileChannels {
-		fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
-		fmt.Printf("target => %s\n", target)
+		// fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
+		// fmt.Printf("target => %s\n", target)
 		if channel, ok := elem["file_name"].(string); ok && channel == sanitizeTarget {
 			return true
 		}
@@ -123,11 +123,11 @@ func ContainChannel(fileChannels []map[string]interface{}, target string) bool {
 func GetChannel(fileChannels []map[string]interface{}, target string) map[string]interface{} {
 
 	sanitizeTarget := strings.ReplaceAll(strings.ToLower(target), ".", "")
-	fmt.Printf("Searching => %s\n", sanitizeTarget)
+	// fmt.Printf("Searching => %s\n", sanitizeTarget)
 
 	for _, elem := range fileChannels {
-		fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
-		fmt.Printf("target => %s\n", target)
+		// fmt.Printf("elem['file_name'] => %s\n", elem["file_name"])
+		// fmt.Printf("target => %s\n", target)
 		if channel, ok := elem["file_name"].(string); ok && channel == sanitizeTarget {
 			return elem
 		}

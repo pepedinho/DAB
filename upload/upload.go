@@ -70,7 +70,10 @@ func createChannelAndSegments(filePath, filename string, file multipart.FileHead
 
 	date := time.Now().Format("20060102-150405")
 
-	channelName := fmt.Sprintf("%s__%s__%d__%s__%s", uuid.New().String(), filename, file.Size, date, filepath.Ext(filename))
+	ext := filepath.Ext(filename)
+	filename = filename[:len(filename)-len(ext)]
+
+	channelName := fmt.Sprintf("%s__%s__%d__%s__%s", uuid.New().String(), filename, file.Size, date, ext)
 
 	if list.ContainChannel(channelList, filename) {
 		return "", fmt.Errorf("erreur el fichier existe déja: %v", err)
