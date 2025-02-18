@@ -29,8 +29,8 @@ func corsMiddleware() gin.HandlerFunc {
 		origin := c.Request.Header.Get("Origin")
 
 		if origin == "" {
-            origin = "*"
-        }
+			origin = "*"
+		}
 
 		gin.DefaultWriter.Write([]byte("📌 Writing Header\n"))
 		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
@@ -54,15 +54,6 @@ func corsMiddleware() gin.HandlerFunc {
 
 func main() {
 	r := gin.Default()
-
-	// r.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     []string{"http://localhost:3000"},
-	// 	AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-	// 	AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-	// 	ExposeHeaders:    []string{"Content-Length"},
-	// 	AllowCredentials: true,
-	// 	MaxAge:           12 * time.Hour,
-	// }))
 
 	r.Use(corsMiddleware())
 
