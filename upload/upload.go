@@ -52,6 +52,8 @@ func UploadFile(c *gin.Context) {
 
 func createChannelAndSegments(filePath, filename string, file multipart.FileHeader, c *gin.Context) (string, error) {
 	dg, err := discordgo.New("Bot " + common.Token)
+	guildID := c.Param("guildID")
+
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la création du client Discord: %v", err)
 	}
@@ -79,7 +81,7 @@ func createChannelAndSegments(filePath, filename string, file multipart.FileHead
 		return "", fmt.Errorf("erreur el fichier existe déja: %v", err)
 	}
 
-	channel, err := dg.GuildChannelCreate(common.GuildID, channelName, discordgo.ChannelTypeGuildText)
+	channel, err := dg.GuildChannelCreate(guildID, channelName, discordgo.ChannelTypeGuildText)
 	if err != nil {
 		return "", fmt.Errorf("erreur lors de la création du canal: %v", err)
 	}

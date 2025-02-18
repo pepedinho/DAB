@@ -4,5 +4,5 @@ import "os"
 
 var (
 	Token   = os.Getenv("DISCORD_TOKEN")
-	GuildID = "1340725915130400859"
+	// GuildID = "1340725915130400859"
 )

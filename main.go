@@ -62,10 +62,10 @@ func main() {
 
 	r.Use(corsMiddleware())
 
-	r.POST("/upload", upload.UploadFile)
-	r.GET("/list", list.ListFile)
-	r.GET("/get", get.GetFile)
-	r.GET("/infos", infos.GetInfos)
+	r.POST("/upload/:guildID", upload.UploadFile)
+	r.GET("/list/:guildID", list.ListFile)
+	r.GET("/get/:guildID", get.GetFile)
+	r.GET("/infos/:guildID", infos.GetInfos)
 
 	r.Run(":8000")
 }

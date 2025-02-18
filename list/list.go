@@ -22,6 +22,7 @@ func ListFile(c *gin.Context) {
 
 func ListChannelFile(c *gin.Context) ([]map[string]interface{}, error) {
 	dg, err := discordgo.New("Bot " + common.Token)
+	guildID := c.Param("guildID")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Impossible d'instancier le bot discord : " + err.Error()})
 		return nil, fmt.Errorf("impossible d'instancier le bot discord : %w", err)
@@ -35,7 +36,7 @@ func ListChannelFile(c *gin.Context) ([]map[string]interface{}, error) {
 
 	defer dg.Close() // fermer avant de return
 
-	list, err := dg.GuildChannels(common.GuildID)
+	list, err := dg.GuildChannels(guildID)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Impossible de récuperé les fichiers : " + err.Error()})
@@ -71,8 +72,9 @@ func ListChannelFile(c *gin.Context) ([]map[string]interface{}, error) {
 // dg has to be already open before call this function
 func ListChannelFileWithDg(c *gin.Context, dg *discordgo.Session) ([]map[string]interface{}, error) {
 	// defer dg.Close() // fermer avant de return
+	guildID := c.Param("guildID")
 
-	list, err := dg.GuildChannels(common.GuildID)
+	list, err := dg.GuildChannels(guildID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Impossible de récuperé les fichiers : " + err.Error()})
 		return nil, fmt.Errorf("impossible de récupérer les fichiers : %w", err)
