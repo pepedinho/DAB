@@ -19,6 +19,7 @@ import (
 
 func UploadFile(c *gin.Context) {
 	file, err := c.FormFile("file")
+	guildID := c.Param("guildID")
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Fichier manquant"})
@@ -30,26 +31,30 @@ func UploadFile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de l'ouverture du fichier : " + err.Error()})
 		return
 	}
-	defer srcFile.Close()
+	// defer srcFile.Close()
+	
+	c.JSON(http.StatusAccepted, gin.H{"message": "Fichier en cours de traitement"})
+	go func() {
+		channelList, err := list.ListChannelFileWithDg(c, common.DiscordSession)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la récuperation des channels : " + err.Error()})
+			return
+		}
+		defer srcFile.Close() // fermer le file a la fin de la routine
+		channelID, err := createChannelAndSegments(srcFile, file.Filename, *file, guildID, channelList)
+		if err != nil {
+			fmt.Printf("❌ Erreur lors de la création du canal ou de l'envoi des segments : %v\n", err)
+			// c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création du canal ou de l'envoi des segments : " + err.Error()})
+			return
+		}
+		fmt.Printf("✅ Fichier traité, channel ID: %s\n", channelID)
+	}()
 
-	channelID, err := createChannelAndSegments(srcFile, file.Filename, *file, c)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création du canal ou de l'envoi des segments : " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Fichier uploadé et segments envoyés", "channel_id": channelID})
+	// c.JSON(http.StatusOK, gin.H{"message": "Fichier uploadé et segments envoyés", "channel_id": channelID})
 }
 
-func createChannelAndSegments(reader io.Reader, filename string, file multipart.FileHeader, c *gin.Context) (string, error) {
+func createChannelAndSegments(reader io.Reader, filename string, file multipart.FileHeader, guildID string, channelList []map[string]interface{}) (string, error) {
 	dg := common.DiscordSession
-	guildID := c.Param("guildID")
-
-	channelList, err := list.ListChannelFileWithDg(c, dg)
-
-	if err != nil {
-		return "", fmt.Errorf("erreur l'ors de la récuperations des channels: %v", err)
-	}
 
 	date := time.Now().Format("20060102-150405")
 
@@ -59,7 +64,7 @@ func createChannelAndSegments(reader io.Reader, filename string, file multipart.
 	channelName := fmt.Sprintf("%s__%s__%d__%s__%s", uuid.New().String(), filename, file.Size, date, ext)
 
 	if list.ContainChannel(channelList, filename) {
-		return "", fmt.Errorf("erreur el fichier existe déja: %v", err)
+		return "", fmt.Errorf("erreur el fichier existe déja")
 	}
 
 	channel, err := dg.GuildChannelCreate(guildID, channelName, discordgo.ChannelTypeGuildText)
