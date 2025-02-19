@@ -21,20 +21,10 @@ func ListFile(c *gin.Context) {
 }
 
 func ListChannelFile(c *gin.Context) ([]map[string]interface{}, error) {
-	dg, err := discordgo.New("Bot " + common.Token)
+	dg := common.DiscordSession
 	guildID := c.Param("guildID")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Impossible d'instancier le bot discord : " + err.Error()})
-		return nil, fmt.Errorf("impossible d'instancier le bot discord : %w", err)
-	}
+	
 
-	err = dg.Open()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Impossible de se connecter a discord : " + err.Error()})
-		return nil, fmt.Errorf("impossible de se connecter a discord : %w", err)
-	}
-
-	defer dg.Close() // fermer avant de return
 
 	list, err := dg.GuildChannels(guildID)
 

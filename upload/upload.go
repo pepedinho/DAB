@@ -42,18 +42,8 @@ func UploadFile(c *gin.Context) {
 }
 
 func createChannelAndSegments(reader io.Reader, filename string, file multipart.FileHeader, c *gin.Context) (string, error) {
-	dg, err := discordgo.New("Bot " + common.Token)
+	dg := common.DiscordSession
 	guildID := c.Param("guildID")
-
-	if err != nil {
-		return "", fmt.Errorf("erreur lors de la création du client Discord: %v", err)
-	}
-
-	err = dg.Open()
-	if err != nil {
-		return "", fmt.Errorf("erreur lors de l'ouverture de la connexion: %v", err)
-	}
-	defer dg.Close()
 
 	channelList, err := list.ListChannelFileWithDg(c, dg)
 

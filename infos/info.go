@@ -1,6 +1,7 @@
 package infos
 
 import (
+	"discord_drive/common"
 	"discord_drive/list"
 	"net/http"
 
@@ -9,7 +10,8 @@ import (
 
 func GetInfos(c *gin.Context) {
 	filename := c.Query("filename")
-	fileChannels, err := list.ListChannelFile(c)
+	dg := common.DiscordSession
+	fileChannels, err := list.ListChannelFileWithDg(c, dg)
 	if err != nil {
 		return
 	}

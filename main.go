@@ -1,6 +1,7 @@
 package main
 
 import (
+	"discord_drive/common"
 	"discord_drive/get"
 	"discord_drive/infos"
 	"discord_drive/list"
@@ -53,6 +54,7 @@ func corsMiddleware() gin.HandlerFunc {
 }
 
 func main() {
+
 	r := gin.Default()
 
 	r.Use(corsMiddleware())
@@ -61,6 +63,9 @@ func main() {
 	r.GET("/list/:guildID", list.ListFile)
 	r.GET("/get/:guildID", get.GetFile)
 	r.GET("/infos/:guildID", infos.GetInfos)
+
+	common.InitDiscordSession()
+	defer common.DiscordSession.Close()
 
 	r.Run(":8000")
 }

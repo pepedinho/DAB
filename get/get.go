@@ -17,18 +17,7 @@ import (
 func GetFile(c *gin.Context) {
 	filename := c.Query("filename")
 
-	dg, err := discordgo.New("Bot " + common.Token)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Impossible d'instancier le bot Discord : " + err.Error()})
-		return
-	}
-
-	err = dg.Open()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Impossible de se connecter à Discord : " + err.Error()})
-		return
-	}
-	defer dg.Close()
+	dg := common.DiscordSession
 
 	channelList, err := list.ListChannelFileWithDg(c, dg)
 	if err != nil {
