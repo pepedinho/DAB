@@ -26,13 +26,14 @@ func UploadFile(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("Taille totale du fichier {%s}: %.2f Mb\n", file.Filename, float64(file.Size)/1024/1024)
 	srcFile, err := file.Open()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de l'ouverture du fichier : " + err.Error()})
 		return
 	}
 	// defer srcFile.Close()
-	
+
 	c.JSON(http.StatusAccepted, gin.H{"message": "Fichier en cours de traitement"})
 	go func() {
 		channelList, err := list.ListChannelFileWithDg(c, common.DiscordSession)
@@ -95,6 +96,7 @@ func sendFileSegmentToChannel(reader io.Reader, channelID string, dg *discordgo.
 		}
 
 		fileSegment := bytes.NewReader(buffer[:n])
+		fmt.Printf("Tentative d'envoi du segment %d de taille: %d bytes\n", segmentIndex, n)
 		_, err = dg.ChannelFileSend(channelID, fmt.Sprintf("segment_%d.dat", segmentIndex), fileSegment)
 		if err != nil {
 			return fmt.Errorf("erreur lors de l'envoi du segment %d: %v", segmentIndex, err)

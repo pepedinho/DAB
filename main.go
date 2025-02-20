@@ -67,5 +67,5 @@ func main() {
 	common.InitDiscordSession()
 	defer common.DiscordSession.Close()
 
-	r.Run(":8000")
+	r.Run("0.0.0.0:8000")
 }
