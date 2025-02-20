@@ -2,6 +2,7 @@ package main
 
 import (
 	"discord_drive/common"
+	"discord_drive/delete"
 	"discord_drive/get"
 	"discord_drive/infos"
 	"discord_drive/list"
@@ -37,7 +38,7 @@ func corsMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
 		// if isOriginAllowed(origin, allowedOrigins) {
 		// }
@@ -63,6 +64,7 @@ func main() {
 	r.GET("/list/:guildID", list.ListFile)
 	r.GET("/get/:guildID", get.GetFile)
 	r.GET("/infos/:guildID", infos.GetInfos)
+	r.DELETE("/delete/:channelID", delete.DeleteFile)
 
 	common.InitDiscordSession()
 	defer common.DiscordSession.Close()
